@@ -47,18 +47,15 @@ jobs:
         run: flutter pub get
       - name: Configure Firebase
         run: |
-          if [ "${{ steps.flavor.outputs.flavor }}" == "dev" ]; then
-            echo "${{ secrets.FIREBASE_OPTIONS_DEV }}" > lib/firebase_options_dev.dart
-            echo "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" > android/app/src/dev/google-services.json
-          elif [ "${{ steps.flavor.outputs.flavor }}" == "staging" ]; then
+          if [ "${{ steps.flavor.outputs.flavor }}" == "staging" ]; then
             echo "${{ secrets.FIREBASE_OPTIONS_STAGING }}" > lib/firebase_options_staging.dart
             echo "${{ secrets.GOOGLE_SERVICES_JSON_STAGING }}" > android/app/src/staging/google-services.json
           elif [ "${{ steps.flavor.outputs.flavor }}" == "prod" ]; then
             echo "${{ secrets.FIREBASE_OPTIONS_PROD }}" > lib/firebase_options_prod.dart
             echo "${{ secrets.GOOGLE_SERVICES_JSON_PROD }}" > android/app/src/prod/google-services.json
           else
-            echo "Error: Unknown flavor ${{ steps.flavor.outputs.flavor }}"
-            exit 1
+            echo "${{ secrets.FIREBASE_OPTIONS_DEV }}" > lib/firebase_options_dev.dart
+            echo "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" > android/app/src/dev/google-services.json
           fi
       - name: Set up Signing
         run: |
