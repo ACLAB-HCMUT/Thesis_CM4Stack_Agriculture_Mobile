@@ -1,38 +1,89 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:android)
 
-platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
+# platform :android do
+#   ######################################################
+#   # Common build lane to assemble an APK for a given flavor
+#   ######################################################
+#   private_lane :build_apk do |options|
+#     flavor = options[:flavor] || "dev"
+#     build_type = options[:build_type] || "Release"
+#
+#     # Dynamically determine the main file based on the flavor
+#     main_file = "lib/main_#{flavor}.dart"
+#
+#     # Build the APK using gradle
+#     gradle(
+#       task: "assemble",
+#       flavor: flavor,
+#       build_type: build_type,
+#       properties: {
+#         "target" => main_file
+#       }
+#     )
+#   end
+  default_platform(:android)
+  ######################################################
+  # Development lane: Build and deploy using Firebase App Distribution
+  ######################################################
+  desc "Deploy Development Build to Firebase App Distribution"
+  lane :deploy_dev do
+#     build_apk(flavor: "dev", build_type: "Release")
+
+    firebase_app_distribution(
+      app: "1:903057481620:android:15a6a143abbe80aa46b981",
+      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      apk_path: "../build/app/outputs/flutter-apk/app-dev-release.apk",
+      testers: "huy.nguyenhuy141120@gmail.com",
+      release_notes: "Automated Development build via Fastlane"
+    )
   end
 
-  desc "Submit a new Beta Build to Crashlytics Beta"
-  lane :beta do
-    gradle(task: "clean assembleRelease")
-    crashlytics
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
+  ######################################################
+  # Staging lane: Build and deploy using Firebase App Distribution
+  ######################################################
+  desc "Deploy Staging Build to Firebase App Distribution"
+  lane :deploy_staging do
+    build_apk(flavor: "staging", build_type: "Release")
+
+    firebase_app_distribution(
+      app: "your_firebase_app_id_staging",
+      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      apk_path: "../build/app/outputs/flutter-apk/app-staging-release.apk",
+      testers: "testers@example.com",
+      release_notes: "Automated Staging build via Fastlane"
+    )
   end
 
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
-    gradle(task: "clean assembleRelease")
-    upload_to_play_store
+  ######################################################
+  # Production lane: Build and deploy using Firebase App Distribution
+  ######################################################
+  desc "Deploy Production Build to Firebase App Distribution"
+  lane :deploy_prod do
+    build_apk(flavor: "prod", build_type: "Release")
+
+    firebase_app_distribution(
+      app: "your_firebase_app_id_prod",
+      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      apk_path: "../build/app/outputs/flutter-apk/app-prod-release.apk",
+      testers: "testers@example.com",
+      release_notes: "Automated Production build via Fastlane"
+    )
   end
-end
+
+  ######################################################
+  # Continuous Deployment lane: Choose deployment based on current branch
+  ######################################################
+  desc "Continuous Deployment - automatically select deployment lane based on git branch"
+  lane :continuous_deploy do
+    branch = sh("git rev-parse --abbrev-ref HEAD").strip
+    UI.message("Deploying for branch: #{branch}")
+
+    case branch
+    when "master"
+      deploy_prod
+    when "staging"
+      deploy_staging
+    else
+      deploy_dev
+    end
+  end
