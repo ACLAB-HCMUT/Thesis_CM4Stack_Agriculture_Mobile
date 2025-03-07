@@ -45,6 +45,11 @@ jobs:
           fi
       - name: Install Dependencies
         run: flutter pub get
+      - name: Create Flavor Directories
+        run: |
+          mkdir -p android/app/src/dev
+          mkdir -p android/app/src/staging
+          mkdir -p android/app/src/prod
       - name: Configure Firebase
         run: |
           if [ "${{ steps.flavor.outputs.flavor }}" == "staging" ]; then
@@ -59,7 +64,7 @@ jobs:
           fi
       - name: Set up Signing
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/greenfarm.jks
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/src/greenfarm.jks
           cat <<EOF > android/app/key.properties
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword=${{ secrets.KEYSTORE_PASSWORD }}
