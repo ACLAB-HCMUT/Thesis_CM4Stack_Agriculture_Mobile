@@ -1,0 +1,114 @@
+name: Flutter CI/CD Pipeline
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - dev
+      - init_project
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0'
+          channel: 'stable'
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.gradle/caches
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}-gradle-${{ hashFiles('**/build.gradle') }}
+      - name: Determine Flavor
+        id: flavor
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "flavor=dev" >> $GITHUB_OUTPUT
+            echo "target=lib/main_dev.dart" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "flavor=staging" >> $GITHUB_OUTPUT
+            echo "target=lib/main_staging.dart" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "flavor=prod" >> $GITHUB_OUTPUT
+            echo "target=lib/main_prod.dart" >> $GITHUB_OUTPUT
+          else
+            echo "No matching flavor for branch ${{ github.ref }}"
+            exit 1
+          fi
+      - name: Set up Signing
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/greenfarm.jks
+          cat <<EOF > android/app/key.properties
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=greenfarm.jks
+          EOF
+      - name: Build APK
+        run: flutter build apk --flavor ${{ steps.flavor.outputs.flavor }} -t ${{ steps.flavor.outputs.target }} --release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ steps.flavor.outputs.flavor }}
+          path: build/app/outputs/flutter-apk/app-${{ steps.flavor.outputs.flavor }}-release.apk
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Determine Flavor
+        id: flavor
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "flavor=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "flavor=staging" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "flavor=prod" >> $GITHUB_OUTPUT
+          else
+            echo "No matching flavor for branch ${{ github.ref }}"
+            exit 1
+          fi
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-${{ steps.flavor.outputs.flavor }}
+          path: build/app/outputs/flutter-apk/
+      - name: Set UTF-8 Encoding for Fastlane
+        run: |
+          echo "LC_ALL=en_US.UTF-8" >> $GITHUB_ENV
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+      - name: Set Up Android SDK Path
+        run: |
+          echo "sdk.dir=/usr/local/lib/android/sdk" > android/local.properties
+      - name: Make gradlew Executable
+        run: chmod +x android/gradlew
+      - name: Set up Ruby and Install Dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: android
+      - name: Deploy to Firebase
+        run: |
+          cd android
+          bundle exec fastlane deploy_${{ steps.flavor.outputs.flavor }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Check APK Existence
+        run: ls build/app/outputs/flutter-apk/app-${{ steps.flavor.outputs.flavor }}-release.apk || echo "APK not found"
+
