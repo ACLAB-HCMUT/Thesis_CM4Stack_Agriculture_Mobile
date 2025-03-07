@@ -33,18 +33,15 @@ jobs:
       - name: Determine Flavor
         id: flavor
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            echo "flavor=dev" >> $GITHUB_OUTPUT
-            echo "target=lib/main_dev.dart" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
             echo "flavor=staging" >> $GITHUB_OUTPUT
             echo "target=lib/main_staging.dart" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "flavor=prod" >> $GITHUB_OUTPUT
             echo "target=lib/main_prod.dart" >> $GITHUB_OUTPUT
           else
-            echo "No matching flavor for branch ${{ github.ref }}"
-            exit 1
+            echo "flavor=dev" >> $GITHUB_OUTPUT
+            echo "target=lib/main_dev.dart" >> $GITHUB_OUTPUT
           fi
       - name: Set up Signing
         run: |
@@ -73,15 +70,12 @@ jobs:
       - name: Determine Flavor
         id: flavor
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            echo "flavor=dev" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
             echo "flavor=staging" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "flavor=prod" >> $GITHUB_OUTPUT
           else
-            echo "No matching flavor for branch ${{ github.ref }}"
-            exit 1
+            echo "flavor=dev" >> $GITHUB_OUTPUT
           fi
       - name: Download Artifact
         uses: actions/download-artifact@v4
