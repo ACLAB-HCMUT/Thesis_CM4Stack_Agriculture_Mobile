@@ -59,8 +59,8 @@ jobs:
             echo "${{ secrets.FIREBASE_OPTIONS_PROD }}" > lib/firebase_options_prod.dart
             echo "${{ secrets.GOOGLE_SERVICES_JSON_PROD }}" > android/app/src/prod/google-services.json
           else
-            echo "${{ secrets.FIREBASE_OPTIONS_DEV }}" > lib/firebase_options_dev.dart
-            echo "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" > android/app/src/dev/google-services.json
+            echo -n "${{ secrets.FIREBASE_OPTIONS_DEV }}" > lib/firebase_options_dev.dart
+            echo -n  "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" > android/app/src/dev/google-services.json
           fi
       - name: Set up Signing
         run: |
