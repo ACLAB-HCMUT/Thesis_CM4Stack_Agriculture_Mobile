@@ -60,10 +60,8 @@ jobs:
             echo "${{ secrets.GOOGLE_SERVICES_JSON_PROD }}" > android/app/src/prod/google-services.json
           else
             echo -n "${{ secrets.FIREBASE_OPTIONS_DEV }}" > lib/firebase_options_dev.dart
-            echo -n  "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" > android/app/src/dev/google-services.json
+            echo -n  "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" | base64 --decode > android/app/src/dev/google-services.json
           fi
-      - name: Check google-services.json content
-        run: cat android/app/src/dev/google-services.json
       - name: Set up Signing
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/src/greenfarm.jks
