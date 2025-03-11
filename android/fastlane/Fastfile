@@ -1,26 +1,5 @@
 default_platform(:android)
 
-# platform :android do
-#   ######################################################
-#   # Common build lane to assemble an APK for a given flavor
-#   ######################################################
-#   private_lane :build_apk do |options|
-#     flavor = options[:flavor] || "dev"
-#     build_type = options[:build_type] || "Release"
-#
-#     # Dynamically determine the main file based on the flavor
-#     main_file = "lib/main_#{flavor}.dart"
-#
-#     # Build the APK using gradle
-#     gradle(
-#       task: "assemble",
-#       flavor: flavor,
-#       build_type: build_type,
-#       properties: {
-#         "target" => main_file
-#       }
-#     )
-#   end
   default_platform(:android)
   ######################################################
   # Development lane: Build and deploy using Firebase App Distribution
