@@ -13,7 +13,7 @@ default_platform(:android)
       firebase_cli_token: ENV["FIREBASE_TOKEN"],
       apk_path: "../build/app/outputs/flutter-apk/app-dev-release.apk",
       testers: "huy.nguyenhuy141120@gmail.com",
-      release_notes: "Automated Development build via Fastlane"
+      release_notes: "Hello world"
     )
   end
 
