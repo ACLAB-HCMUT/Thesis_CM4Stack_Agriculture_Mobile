@@ -1,4 +1,5 @@
 name: Flutter CI/CD Pipeline
+
 on:
   push:
     branches:
@@ -6,6 +7,11 @@ on:
       - staging
       - dev
       - init_project
+  pull_request:
+    branches:
+      - main
+      - staging
+      - dev
 
 jobs:
   build:
@@ -33,10 +39,15 @@ jobs:
       - name: Determine Flavor
         id: flavor
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BRANCH=${{ github.base_ref }}
+          else
+            BRANCH=${{ github.ref }}
+          fi
+          if [[ "$BRANCH" == "refs/heads/staging" ]]; then
             echo "flavor=staging" >> $GITHUB_OUTPUT
             echo "target=lib/main_staging.dart" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          elif [[ "$BRANCH" == "refs/heads/main" ]]; then
             echo "flavor=prod" >> $GITHUB_OUTPUT
             echo "target=lib/main_prod.dart" >> $GITHUB_OUTPUT
           else
@@ -60,7 +71,7 @@ jobs:
             echo "${{ secrets.GOOGLE_SERVICES_JSON_PROD }}" > android/app/src/prod/google-services.json
           else
             echo -n "${{ secrets.FIREBASE_OPTIONS_DEV }}" > lib/firebase_options_dev.dart
-            echo -n  "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" | base64 --decode > android/app/src/dev/google-services.json
+            echo -n "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" | base64 --decode > android/app/src/dev/google-services.json
           fi
       - name: Set up Signing
         run: |
@@ -83,15 +94,17 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'  # Only run on push events
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
       - name: Determine Flavor
         id: flavor
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+          BRANCH=${{ github.ref }}
+          if [[ "$BRANCH" == "refs/heads/staging" ]]; then
             echo "flavor=staging" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          elif [[ "$BRANCH" == "refs/heads/main" ]]; then
             echo "flavor=prod" >> $GITHUB_OUTPUT
           else
             echo "flavor=dev" >> $GITHUB_OUTPUT
