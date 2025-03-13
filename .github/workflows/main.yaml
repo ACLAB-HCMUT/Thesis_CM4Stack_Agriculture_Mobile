@@ -1,0 +1,140 @@
+name: Flutter CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - dev
+      - init_project
+      - feature/*
+  pull_request:
+    branches:
+      - main
+      - staging
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0'
+          channel: 'stable'
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.gradle/caches
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}-gradle-${{ hashFiles('**/build.gradle') }}
+      - name: Determine Flavor
+        id: flavor
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BRANCH=${{ github.base_ref }}
+          else
+            BRANCH=${{ github.ref }}
+          fi
+          if [[ "$BRANCH" == "refs/heads/staging" ]]; then
+            echo "flavor=staging" >> $GITHUB_OUTPUT
+            echo "target=lib/main_staging.dart" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" == "refs/heads/main" ]]; then
+            echo "flavor=prod" >> $GITHUB_OUTPUT
+            echo "target=lib/main_prod.dart" >> $GITHUB_OUTPUT
+          else
+            echo "flavor=dev" >> $GITHUB_OUTPUT
+            echo "target=lib/main_dev.dart" >> $GITHUB_OUTPUT
+          fi
+      - name: Install Dependencies
+        run: flutter pub get
+      - name: Create Flavor Directories
+        run: |
+          mkdir -p android/app/src/dev
+          mkdir -p android/app/src/staging
+          mkdir -p android/app/src/prod
+      - name: Configure Firebase
+        run: |
+          if [ "${{ steps.flavor.outputs.flavor }}" == "staging" ]; then
+            echo "${{ secrets.FIREBASE_OPTIONS_STAGING }}" > lib/firebase_options_staging.dart
+            echo "${{ secrets.GOOGLE_SERVICES_JSON_STAGING }}" > android/app/src/staging/google-services.json
+          elif [ "${{ steps.flavor.outputs.flavor }}" == "prod" ]; then
+            echo "${{ secrets.FIREBASE_OPTIONS_PROD }}" > lib/firebase_options_prod.dart
+            echo "${{ secrets.GOOGLE_SERVICES_JSON_PROD }}" > android/app/src/prod/google-services.json
+          else
+            echo -n "${{ secrets.FIREBASE_OPTIONS_DEV }}" > lib/firebase_options_dev.dart
+            echo -n "${{ secrets.GOOGLE_SERVICES_JSON_DEV }}" | base64 --decode > android/app/src/dev/google-services.json
+          fi
+      - name: Set up Signing
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/greenfarm.jks
+          cat <<EOF > android/app/key.properties
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=greenfarm.jks
+          EOF
+      - name: Build APK
+        run: flutter build apk --flavor ${{ steps.flavor.outputs.flavor }} -t ${{ steps.flavor.outputs.target }} --release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ steps.flavor.outputs.flavor }}
+          path: build/app/outputs/flutter-apk/app-${{ steps.flavor.outputs.flavor }}-release.apk
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'  # Only run on push events
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Determine Flavor
+        id: flavor
+        run: |
+          BRANCH=${{ github.ref }}
+          if [[ "$BRANCH" == "refs/heads/staging" ]]; then
+            echo "flavor=staging" >> $GITHUB_OUTPUT
+          elif [[ "$BRANCH" == "refs/heads/main" ]]; then
+            echo "flavor=prod" >> $GITHUB_OUTPUT
+          else
+            echo "flavor=dev" >> $GITHUB_OUTPUT
+          fi
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-${{ steps.flavor.outputs.flavor }}
+          path: build/app/outputs/flutter-apk/
+      - name: Set UTF-8 Encoding for Fastlane
+        run: |
+          echo "LC_ALL=en_US.UTF-8" >> $GITHUB_ENV
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+      - name: Set Up Android SDK Path
+        run: |
+          echo "sdk.dir=/usr/local/lib/android/sdk" > android/local.properties
+      - name: Make gradlew Executable
+        run: chmod +x android/gradlew
+      - name: Set up Ruby and Install Dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: android
+      - name: Deploy to Firebase
+        run: |
+          cd android
+          bundle exec fastlane deploy_${{ steps.flavor.outputs.flavor }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Check APK Existence
+        run: ls build/app/outputs/flutter-apk/app-${{ steps.flavor.outputs.flavor }}-release.apk || echo "APK not found"
