@@ -12,7 +12,7 @@ plugins {
 }
 
 android {
-    namespace = "com.greencorp.greenfarm.triple_h"
+    namespace = "com.greencorp.greenfarm.triple_h.dev"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -27,7 +27,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.greencorp.greenfarm.triple_h"
+        applicationId = "com.greencorp.greenfarm.triple_h.dev"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
@@ -40,26 +40,25 @@ android {
     productFlavors {
         create("dev") {
             dimension = "environment"
-            applicationIdSuffix = ".dev"
+//            applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
             manifestPlaceholders["flutterTarget"] = "lib/main_dev.dart"
         }
-        create("staging") {
-            dimension = "environment"
-            // Final Application ID: com.yourcompany.yourapp.staging
-            applicationIdSuffix = ".staging"
-            versionNameSuffix = "-staging"
-        }
-        create("prod") {
-            dimension = "environment"
-            // Final Application ID: com.yourcompany.yourapp
-        }
+//        create("staging") {
+//            dimension = "environment"
+//            // Final Application ID: com.yourcompany.yourapp.staging
+//            applicationIdSuffix = ".staging"
+//            versionNameSuffix = "-staging"
+//        }
+//        create("prod") {
+//            dimension = "environment"
+//            // Final Application ID: com.yourcompany.yourapp
+//        }
     }
 
-    // Load keystore properties from key.properties file
+//     Load keystore properties from key.properties file
     val keystoreProperties = Properties()
-    //val keystorePropertiesFile = file("C:\\Users\\Huy\\Desktop\\remote_control\\ci_cd_testing\\ci_cd_testing\\key.properties")
-    val keystorePropertiesFile = file("key.properties")
+    val keystorePropertiesFile = rootProject.file("key.properties")
     if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(FileInputStream(keystorePropertiesFile))
     }
@@ -68,22 +67,23 @@ android {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
             keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
+            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
             storePassword = keystoreProperties["storePassword"] as String
         }
     }
 
+
     buildTypes {
         release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now,
+            // so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("debug")
             signingConfig = signingConfigs.getByName("release")
-            // Configure proguard if necessary
-        }
-        debug {
-            // Debug builds are not signed for release, usually.
         }
     }
-}
+    }
 
-flutter {
-    source = "../.."
-}
+    flutter {
+        source = "../.."
+    }

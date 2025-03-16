@@ -30,21 +30,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_test:
-    sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-
-
-
-
+#  qr_code_scanner: 1.0.1
+  flutter_background: ^1.3.0+1
+  flutter_gemini: ^2.0.3
+  dash_chat_2: ^0.0.20
+  slide_to_act: ^2.0.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   #------------- Environment -------------#
   flutter_dotenv: 5.2.1
-  flutter_lints: ^2.0.0
   #------------- icons -------------#
+  cupertino_icons: ^1.0.2
   iconsax: ^0.0.8
 
   #------------- state -------------#
@@ -95,22 +92,19 @@ dependencies:
   lite_rolling_switch: ^1.0.1
   #------------SVG Flutter ----------#
   flutter_svg: ^2.0.0
-  #------------Chart ----------------#
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-
+#------------Chart ----------------#
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  build_runner: ^2.4.0
+  build_web_compilers: ^4.0.4
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: 5.0.0
+  test: ^1.25.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -124,9 +118,55 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  #--------------- LOCAL ASSETS ------------------#
+  assets:
+    - assets/icons/dashboardIcon/
+    - assets/images/onboarding_images/onboarding2/
+    - assets/logos/search_bar_logo/
+    - assets/images/onboarding_images/onboarding3/
+    - assets/images/onboarding_images/
+    - assets/images/onboarding_images/onboarding1/
+    - assets/images/profile_image/
+    - assets/logos/green_farm_logo/
+    - assets/images/background_login/
+    - assets/images/animations/
+    - assets/images/plants/tomato/
+    - assets/logos/
+    - assets/icons/dashboardIcon/analytics/dark_mode/
+    - assets/icons/dashboardIcon/analytics/white_mode/
+    - assets/icons/dashboardIcon/irrigation/dark_mode/
+    - assets/icons/dashboardIcon/irrigation/white_mode/
+    - assets/icons/dashboardIcon/my_farm/dark_mode/
+    - assets/icons/dashboardIcon/my_farm/white_mode/
+    - assets/icons/dashboardIcon/profile/dark_mode/
+    - assets/icons/dashboardIcon/profile/white_mode/
+    - assets/icons/adding_button/
+    - assets/icons/sensorIcon/humid/
+    - assets/icons/sensorIcon/soil/
+    - assets/icons/sensorIcon/temp/
+    - assets/icons/weatherIcon/inday/clouds/
+    - assets/icons/weatherIcon/inday/rain/
+    - assets/icons/weatherIcon/inday/sun/
+    - assets/icons/weatherIcon/inday/thunderstorm/
+    - assets/icons/weatherIcon/night/cloudNight/
+    - assets/icons/weatherIcon/night/midnightClear/
+    - assets/icons/weatherIcon/night/nightRain/
+    - assets/icons/weatherIcon/night/nightRainThunder/
+    - assets/icons/animationLottie/
+    - assets/icons/iconAdding/
+    - assets/icons/addingTreeIcon/
+    - assets/icons/iconAdding/
+    - assets/images/plants/foodCrop/
+    - assets/images/plants/fruit/
+    - assets/images/plants/herb/
+    - assets/images/plants/industrialCrop/
+    - assets/images/plants/vegetable/
+    - assets/images/plants/tomato/
+    - assets/images/waterLevel/25Percent/
+    - assets/images/waterLevel/50Percent/
+    - assets/images/waterLevel/75Percent/
+    - assets/images/waterLevel/100Percent/
+    - assets/images/outputDevices/pump/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -139,17 +179,24 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 800
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
