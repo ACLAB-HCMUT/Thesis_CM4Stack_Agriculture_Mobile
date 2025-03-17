@@ -90,9 +90,9 @@ android {
             // Signing with the debug keys for now,
             // so `flutter run` works.
 //            signingConfig = signingConfigs.getByName("debug")
+        }
     }
 }
-
-    flutter {
-        source = "../.."
-    }
+flutter {
+    source = "../.."
+}
