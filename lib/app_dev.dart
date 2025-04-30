@@ -5,11 +5,7 @@ import 'package:triple_h/utils/constants/colors.dart';
 import 'package:triple_h/utils/constants/text_strings.dart';
 import 'package:triple_h/utils/routes/app_routes.dart';
 import 'package:triple_h/utils/theme/theme.dart';
-// import 'package:Thesis_CM4Stack_Agriculture_Mobile/bindings/general_bindings.dart';
-// import 'package:thesis_smart_farm/utils/constants/colors.dart';
-// import 'package:thesis_smart_farm/utils/constants/text_strings.dart';
-// import 'package:thesis_smart_farm/utils/routes/app_routes.dart';
-// import 'package:thesis_smart_farm/utils/theme/theme.dart';
+
 
 import 'bindings/general_bindings.dart';
 import 'features/authentication/screens/onboarding/onboarding.dart';
@@ -26,7 +22,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: true,
       initialBinding: GeneralBindings(),
       darkTheme: TAppTheme.darkTheme,
-      // getPages: AppRoutes.pages,
+      getPages: AppRoutes.pages,
       home:const Scaffold(
         backgroundColor: TColors.primary,
         body: Center(
