@@ -109,7 +109,7 @@ plugins {
 }
 
 android {
-    namespace = "com.greencorp.greenfarm.triple_h.dev" // Updated namespace for dev flavor
+    namespace = "com.greencorp.greenfarm.triple_h" // Updated namespace for dev flavor
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -133,7 +133,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.greencorp.greenfarm.triple_h.dev" // Updated Application ID
+        applicationId = "com.greencorp.greenfarm.triple_h" // Updated Application ID
         minSdk = 23
         targetSdk = 33
         versionCode = 1
@@ -189,7 +189,7 @@ flutter {
 }
 
 dependencies {
-    implementation("com.android.tools:desugar_jdk_libs:2.0.3") // Core library desugaring dependency
+//    implementation("com.android.tools:desugar_jdk_libs:2.0.3") // Core library desugaring dependency
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 

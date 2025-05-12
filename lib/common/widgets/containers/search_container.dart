@@ -44,29 +44,29 @@ class SearchContainer extends StatelessWidget {
     final dark = THelperFunctions.isDarkMode(context);
 
     // Get the notification service
-    final notificationService = Get.put(NotificationServices());
-
-    // Function to handle notification icon tap
-    void handleNotificationTap() {
-      // If there are notifications, show the most recent one
-      if (notificationService.notifications.isNotEmpty) {
-        final latestNotification = notificationService.notifications.first;
-        Get.to(() => MessageDetailScreen(
-          title: latestNotification.notification?.title ?? 'Notifications',
-          body: latestNotification.notification?.body ?? 'Your notifications',
-          payload: latestNotification.data,
-        ));
-      } else {
-        // If no notifications, show default screen
-        Get.to(() => const MessageDetailScreen(
-          title: 'Notifications',
-          body: 'You have no new notifications',
-          payload: {'type': 'info', 'message': 'No new notifications'},
-        ));
-      }
-      // Mark as read when accessing notifications
-      notificationService.markAsRead();
-    }
+    // final notificationService = Get.put(NotificationServices());
+    //
+    // // Function to handle notification icon tap
+    // void handleNotificationTap() {
+    //   // If there are notifications, show the most recent one
+    //   if (notificationService.notifications.isNotEmpty) {
+    //     final latestNotification = notificationService.notifications.first;
+    //     Get.to(() => MessageDetailScreen(
+    //       title: latestNotification.notification?.title ?? 'Notifications',
+    //       body: latestNotification.notification?.body ?? 'Your notifications',
+    //       payload: latestNotification.data,
+    //     ));
+    //   } else {
+    //     // If no notifications, show default screen
+    //     Get.to(() => const MessageDetailScreen(
+    //       title: 'Notifications',
+    //       body: 'You have no new notifications',
+    //       payload: {'type': 'info', 'message': 'No new notifications'},
+    //     ));
+    //   }
+    //   // Mark as read when accessing notifications
+    //   notificationService.markAsRead();
+    // }
 
     return GestureDetector(
       onTap: onTap,
@@ -121,30 +121,30 @@ class SearchContainer extends StatelessWidget {
                         IconButton(
                           onPressed: () {
                             // Navigate to notification list screen without directly calling markAsRead
-                            Get.to(() => NotificationsListScreen());
+                           // Get.to(() => NotificationsListScreen());
                           },
                           icon: Icon(Icons.notifications, color: TColors.darkGrey),
                         ),
-                        Obx(() => notificationService.unreadCount.value > 0
-                            ? Positioned(
-                          right: 0,
-                          top: 0,
-                          child: badges.Badge(
-                            badgeContent: Text(
-                              notificationService.unreadCount.value.toString(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                              ),
-                            ),
-                            badgeStyle: badges.BadgeStyle(
-                              badgeColor: Colors.red,
-                              padding: EdgeInsets.all(5),
-                            ),
-                          ),
-                        )
-                            : SizedBox.shrink(),
-                        ),
+                        // Obx(() => notificationService.unreadCount.value > 0
+                        //     ? Positioned(
+                        //   right: 0,
+                        //   top: 0,
+                        //   child: badges.Badge(
+                        //     badgeContent: Text(
+                        //       //notificationService.unreadCount.value.toString(),
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontSize: 10,
+                        //       ),
+                        //     ),
+                        //     badgeStyle: badges.BadgeStyle(
+                        //       badgeColor: Colors.red,
+                        //       padding: EdgeInsets.all(5),
+                        //     ),
+                        //   ),
+                        // )
+                        //     : SizedBox.shrink(),
+                        // ),
                       ],
                     ),
                     const SizedBox(width: TSizes.spaceBtwItems / 2),
@@ -173,30 +173,30 @@ class SearchContainer extends StatelessWidget {
                         IconButton(
                           onPressed: () {
                             // Navigate to notification list screen without directly calling markAsRead
-                            Get.to(() => NotificationsListScreen());
+                           // Get.to(() => NotificationsListScreen());
                           },
                           icon: Icon(Icons.notifications, color: TColors.darkGrey),
                         ),
-                        Obx(() => notificationService.unreadCount.value > 0
-                            ? Positioned(
-                          right: 0,
-                          top: 0,
-                          child: badges.Badge(
-                            badgeContent: Text(
-                              notificationService.unreadCount.value.toString(),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                              ),
-                            ),
-                            badgeStyle: badges.BadgeStyle(
-                              badgeColor: Colors.red,
-                              padding: EdgeInsets.all(5),
-                            ),
-                          ),
-                        )
-                            : SizedBox.shrink(),
-                        ),
+                        // Obx(() => notificationService.unreadCount.value > 0
+                        //     ? Positioned(
+                        //   right: 0,
+                        //   top: 0,
+                        //   child: badges.Badge(
+                        //     badgeContent: Text(
+                        //      // notificationService.unreadCount.value.toString(),
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontSize: 10,
+                        //       ),
+                        //     ),
+                        //     badgeStyle: badges.BadgeStyle(
+                        //       badgeColor: Colors.red,
+                        //       padding: EdgeInsets.all(5),
+                        //     ),
+                        //   ),
+                        // )
+                        //     : SizedBox.shrink(),
+                        // ),
                       ],
                     ),
                     Obx(() {

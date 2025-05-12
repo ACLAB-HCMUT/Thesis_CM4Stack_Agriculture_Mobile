@@ -36,26 +36,26 @@ Future _firebaseBackgroundMessage(RemoteMessage message) async {
 }
 
 // Function to handle FCM message when app is open
-void handleMessage(RemoteMessage message) {
-  if (message.notification != null) {
-    Get.to(() => MessageDetailScreen(
-      title: message.notification?.title ?? 'No Title',
-      body: message.notification?.body ?? 'No Body',
-      payload: message.data,
-    ));
-  }
-}
-void handleNotificationClick(Map<String, dynamic> data) {
-  final String title = data['title'] ?? 'Notification';
-  final String body = data['body'] ?? '';
-
-  // Navigate to notification details
-  Get.to(() => MessageDetailScreen(
-    title: title,
-    body: body,
-    payload: data,
-  ));
-}
+// void handleMessage(RemoteMessage message) {
+//   if (message.notification != null) {
+//     Get.to(() => MessageDetailScreen(
+//       title: message.notification?.title ?? 'No Title',
+//       body: message.notification?.body ?? 'No Body',
+//       payload: message.data,
+//     ));
+//   }
+// }
+// void handleNotificationClick(Map<String, dynamic> data) {
+//   final String title = data['title'] ?? 'Notification';
+//   final String body = data['body'] ?? '';
+//
+//   // Navigate to notification details
+//   Get.to(() => MessageDetailScreen(
+//     title: title,
+//     body: body,
+//     payload: data,
+//   ));
+// }
 Future<void> main() async {
   // TODO : add widgets Binding
   final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -70,7 +70,7 @@ Future<void> main() async {
 
   // Initialize FCM
   final messaging = FirebaseMessaging.instance;
-  final notificationService = NotificationServices();
+  //final notificationService = NotificationServices();
   // Request notification permissions
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
@@ -105,22 +105,22 @@ Future<void> main() async {
     iOS: iosSettings,
   );
 
-  await flutterLocalNotificationsPlugin.initialize(
-    initSettings,
-    onDidReceiveNotificationResponse: (response) {
-      // Handle notification tap
-      try {
-        final payload = jsonDecode(response.payload ?? '{}');
-        Get.to(() => MessageDetailScreen(
-          title: payload['title'] ?? 'Notification',
-          body: payload['body'] ?? '',
-          payload: payload['data'] ?? {},
-        ));
-      } catch (e) {
-        print('Error processing notification tap: $e');
-      }
-    },
-  );
+  // await flutterLocalNotificationsPlugin.initialize(
+  //   initSettings,
+  //   onDidReceiveNotificationResponse: (response) {
+  //     // Handle notification tap
+  //     try {
+  //       final payload = jsonDecode(response.payload ?? '{}');
+  //       Get.to(() => MessageDetailScreen(
+  //         title: payload['title'] ?? 'Notification',
+  //         body: payload['body'] ?? '',
+  //         payload: payload['data'] ?? {},
+  //       ));
+  //     } catch (e) {
+  //       print('Error processing notification tap: $e');
+  //     }
+  //   },
+  // );
 
   // Setup Android notification channel
   await flutterLocalNotificationsPlugin
@@ -131,22 +131,22 @@ Future<void> main() async {
   final fcmToken = await messaging.getToken();
   print('FCM Token: $fcmToken');
 
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    // Add to notification list if not already there
-    if (!notificationService.notifications.any((n) => n.messageId == message.messageId)) {
-      notificationService.notifications.add(message);
-    }
-
-    // Mark this specific notification as read
-    notificationService.markNotificationAsRead(message.messageId);
-
-    // Navigate directly to detail screen for this notification
-    Get.to(() => MessageDetailScreen(
-      title: message.notification?.title ?? 'Notification',
-      body: message.notification?.body ?? '',
-      payload: message.data,
-    ));
-  });
+  // FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+  //   // Add to notification list if not already there
+  //   if (!notificationService.notifications.any((n) => n.messageId == message.messageId)) {
+  //     notificationService.notifications.add(message);
+  //   }
+  //
+  //   // Mark this specific notification as read
+  //   notificationService.markNotificationAsRead(message.messageId);
+  //
+  //   // Navigate directly to detail screen for this notification
+  //   // Get.to(() => MessageDetailScreen(
+  //   //   title: message.notification?.title ?? 'Notification',
+  //   //   body: message.notification?.body ?? '',
+  //   //   payload: message.data,
+  //   // ));
+  // });
 
   Firebase.initializeApp().then((_) async {
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
@@ -156,19 +156,19 @@ Future<void> main() async {
       // Wait for app to initialize then navigate
       Future.delayed(Duration(seconds: 1), () {
         // Add to notification list if not already there
-        if (!notificationService.notifications.any((n) => n.messageId == initialMessage.messageId)) {
-          notificationService.notifications.add(initialMessage);
-        }
+        // if (!notificationService.notifications.any((n) => n.messageId == initialMessage.messageId)) {
+        //   notificationService.notifications.add(initialMessage);
+        // }
 
         // Mark this specific notification as read
-        notificationService.markNotificationAsRead(initialMessage.messageId);
+      //  notificationService.markNotificationAsRead(initialMessage.messageId);
 
         // Navigate directly to detail screen for this notification
-        Get.to(() => MessageDetailScreen(
-          title: initialMessage.notification?.title ?? 'Notification',
-          body: initialMessage.notification?.body ?? '',
-          payload: initialMessage.data,
-        ));
+        // Get.to(() => MessageDetailScreen(
+        //   title: initialMessage.notification?.title ?? 'Notification',
+        //   body: initialMessage.notification?.body ?? '',
+        //   payload: initialMessage.data,
+        // ));
       });
     }
   });
