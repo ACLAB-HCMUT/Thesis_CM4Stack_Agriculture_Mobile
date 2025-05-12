@@ -3,4 +3,4 @@
 
 //? Example
 const String tSecretAPIKey = "";
-const String geminiAPIKEy = "AIzaSyA9VYhjT5YYjzCIYMLfYUUlFzQSevgIGMY";
+const String geminiAPIKEy = "AIzaSyAmtFhVX1oxRLvkQb2596FsA9ETSoaL1SE";
