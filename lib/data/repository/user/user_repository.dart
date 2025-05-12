@@ -12,8 +12,6 @@ import '../../../utils/exceptions/firebase_exceptions.dart';
 import '../../../utils/exceptions/format_exceptions.dart';
 import '../../../utils/exceptions/platform_exceptions.dart';
 import '../authentication/authentication_repository.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-
 
 //! Repository class for user related operations.
 class UserRepository extends GetxController {
@@ -156,96 +154,6 @@ class UserRepository extends GetxController {
     } catch (e) {
       throw 'Something went wrong. Please try again.';
     }
-  }
-  // Method to add a device token to the user's record
-  Future<void> addDeviceToken() async {
-    try {
-      // Get the current FCM token
-      String? token = await FirebaseMessaging.instance.getToken();
-
-      if (token == null) return;
-
-      final userId = AuthenticationRepository.instance.authUser?.uid;
-      if (userId == null) return;
-
-      // Get the current user document
-      final userDoc = await _db.collection('users').doc(userId).get();
-
-      if (userDoc.exists) {
-        // Get the current list of device tokens
-        final userData = userDoc.data();
-        if (userData == null) return;
-
-        List<String> tokens = List<String>.from(userData['deviceTokens'] ?? []);
-
-        // Add the new token if it doesn't already exist
-        if (!tokens.contains(token)) {
-          tokens.add(token);
-
-          // Update the user document with the new token list
-          await _db.collection('users').doc(userId).update({
-            'deviceTokens': tokens
-          });
-        }
-      }
-    } on FirebaseException catch (e) {
-      throw TFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw const TFormatException();
-    } on PlatformException catch (e) {
-      throw TPlatformException(e.code).message;
-    } catch (e) {
-      throw 'Something went wrong. Please try again';
-    }
-  }
-
-  // Method to remove a device token when user logs out
-  Future<void> removeDeviceToken() async {
-    try {
-      // Get the current FCM token
-      String? token = await FirebaseMessaging.instance.getToken();
-
-      if (token == null) return;
-
-      final userId = AuthenticationRepository.instance.authUser?.uid;
-      if (userId == null) return;
-
-      // Get the current user document
-      final userDoc = await _db.collection('users').doc(userId).get();
-
-      if (userDoc.exists) {
-        // Get the current list of device tokens
-        final userData = userDoc.data();
-        if (userData == null) return;
-
-        List<String> tokens = List<String>.from(userData['deviceTokens'] ?? []);
-
-        // Remove the token if it exists
-        if (tokens.contains(token)) {
-          tokens.remove(token);
-
-          // Update the user document with the new token list
-          await _db.collection('users').doc(userId).update({
-            'deviceTokens': tokens
-          });
-        }
-      }
-    } on FirebaseException catch (e) {
-      throw TFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw const TFormatException();
-    } on PlatformException catch (e) {
-      throw TPlatformException(e.code).message;
-    } catch (e) {
-      throw 'Something went wrong. Please try again';
-    }
-  }
-
-  // Setup token refresh listener to keep tokens updated
-  void setupTokenRefreshListener() {
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-      addDeviceToken();
-    });
   }
 }
 
